@@ -20,12 +20,14 @@ export function getSortedPostsData() {
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(fileContents);
 
-    // Combine the data with the id
+    // Combine the data with the id and include the 'date' property
     return {
       id,
+      date: matterResult.data.date, // Make sure to replace 'date' with the actual property name
       ...matterResult.data,
     };
   });
+
   // Sort posts by date
   return allPostsData.sort((a, b) => {
     if (a.date < b.date) {
@@ -53,10 +55,16 @@ export function getAllPostIds() {
   //   }
   // ]
   return fileNames.map((fileName) => {
+    const id = fileName.replace(/\.md$/, "");
+    const fullPath = path.join(postsDirectory, fileName);
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const matterResult = matter(fileContents);
+
     return {
       params: {
-        id: fileName.replace(/\.md$/, ""),
+        id,
       },
+      ...matterResult.data, // Include additional data, such as 'date'
     };
   });
 }
